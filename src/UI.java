@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.plaf.ScrollBarUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -23,6 +25,7 @@ public class UI {
     JTextField tips = null;
     JTextField selectFilePath = null;
     JTextArea outPanel = null;
+    JScrollPane jScrollPane = null;
     JButton MD5Btn = null;
     JButton selectBtn = null;
 
@@ -30,26 +33,28 @@ public class UI {
         jFrame = new JFrame("MD5计算器");
         jPanel = new JPanel(new BorderLayout());
         tips = new JTextField("请选择文件:", 1);
-        MD5Btn = new JButton("MD5");
+        MD5Btn = new JButton("数字摘要");
         centerPanel = new JPanel(new BorderLayout());
         outPanel = new JTextArea();
+        jScrollPane = new JScrollPane(outPanel);
         filePanel = new JPanel(new BorderLayout());
         selectFilePath = new JTextField(1);
         selectBtn = new JButton("选择");
 
-        jFrame.setSize(400, 300);
+        jFrame.setSize(350, 300);
         jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         tips.setEditable(false);
         //接受拖放文件
         outPanel.setDragEnabled(true);
         outPanel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        outPanel.setLineWrap(true);
         outPanel.setTransferHandler(new DefaultTransferHandler());
 
         filePanel.add(selectFilePath, BorderLayout.CENTER);
         filePanel.add(selectBtn, BorderLayout.EAST);
         centerPanel.add(filePanel, BorderLayout.NORTH);
-        centerPanel.add(outPanel, BorderLayout.CENTER);
+        centerPanel.add(jScrollPane, BorderLayout.CENTER);
         selectBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -70,8 +75,8 @@ public class UI {
             public void actionPerformed(ActionEvent e) {
                 String fileName = selectFilePath.getText();
                 if (!fileName.equals("")) {
-                    String result = MD5Algorithmic.getFileMD5(new File(fileName));
-                    outPanel.append("MD5:" + result + "\n");
+                    outPanel.setText("");
+                    calculate(new File(fileName));
                 }
             }
         });
@@ -120,8 +125,8 @@ public class UI {
                     if (file != null) {
                         String fileName = file.getAbsolutePath();
                         selectFilePath.setText(fileName);
-                        String result = MD5Algorithmic.getFileMD5(file);
-                        outPanel.append("MD5:" + result + "\n");
+                        outPanel.setText("");
+                        calculate(file);
                     }
                     return true;
                 }
@@ -175,5 +180,14 @@ public class UI {
             }
             return null;
         }
+    }
+
+    private void calculate(File file) {
+        String MD5 = Algorithmic.getFileMD5(file);
+        String SHA1 = Algorithmic.getFileSHA1(file);
+        String SHA256 = Algorithmic.getFileSHA256(file);
+        outPanel.append("MD5:\n\n" + MD5 + "\n\n");
+        outPanel.append("SHA-1:\n\n" + SHA1 + "\n\n");
+        outPanel.append("SHA-256:\n\n" + SHA256 + "\n\n");
     }
 }
